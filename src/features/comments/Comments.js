@@ -21,7 +21,7 @@ const Comments = () => {
     if(article) {
       dispatch(loadCommentsForArticleId(article.id))
     } 
-  }, [article])
+  }, [dispatch, article])
 
 const commentsForArticleId = article ? comments[article.id] : []; 
   

@@ -12,12 +12,15 @@ export const loadCommentsForArticleId = createAsyncThunk(
 )
 
 // Create postCommentForArticleId here.
-// export const postCommentsForArticleId = createAsyncThunk(
-//   "comments/postCommentsForArticleId",
-//   async (id) => {
-//     const 
-//   }
-// )
+export const postCommentForArticleId = createAsyncThunk(
+  "comments/postCommentsForArticleId",
+  async ({articleId, comment}) => {
+    const requestBody = JSON.stringify({comment: comment});
+    const response = await fetch(`api/articles/${articleId}/comments`, {method: 'POST', body: requestBody});
+    const json = await response.json()
+    return json;
+  }
+)
 
 
 export const commentsSlice = createSlice({
@@ -26,7 +29,9 @@ export const commentsSlice = createSlice({
     // Add initial state properties here.
     byArticleId: {},
     isLoadingComments: false, 
-    failedToLoadComments: false
+    failedToLoadComments: false,
+    createCommentisPending: false,
+    failedToCreateComment: false
   },
   // Add extraReducers here.
   extraReducers: {
@@ -34,28 +39,28 @@ export const commentsSlice = createSlice({
       state.isLoadingComments = true;
       state.failedToLoadComments = false;
     },
+    [loadCommentsForArticleId.rejected]: (state, action) => {
+      state.isLoadingComments = false;
+      state.failedToLoadComments = true;
+    },
     [loadCommentsForArticleId.fulfilled]: (state, action) => {
       state.byArticleId[action.payload.articleId] = action.payload.comments;
       state.isLoadingComments = false;
       state.failedToLoadComments = false;
     },
-    [loadCommentsForArticleId.rejected]: (state, action) => {
-      state.isLoadingComments = false;
-      state.failedToLoadComments = true;
+    [postCommentForArticleId.pending]: (state, action) => {
+      state.createCommentisPending = true;
+      state.failedToCreateComment = false;
     },
-    // [postCommentsForArticleId.pending]: (state, action) => {
-    //   state.isLoadingComments = true;
-    //   state.failedToLoadComments = false;
-    // },
-    // [postCommentsForArticleId.fulfilled]: (state, action) => {
-    //   // 
-    //   state.isLoadingComments = false;
-    //   state.failedToLoadComments = false;
-    // },
-    // [postCommentsForArticleId.rejected]: (state, action) => {
-    //   state.isLoadingComments = false;
-    //   state.failedToLoadComments = true;
-    // },
+    [postCommentForArticleId.rejected]: (state, action) => {
+      state.createCommentisPending = false;
+      state.failedToCreateComment = true;
+    },
+    [postCommentForArticleId.fulfilled]: (state, action) => {
+      state.byArticleId[action.payload.articleId].push(action.payload)
+      state.createCommentisPending = false;
+      state.failedToCreateComment = false;
+    },
   }
 });
 

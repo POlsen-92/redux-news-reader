@@ -1,6 +1,6 @@
 import { rest } from 'msw';
-import articlesData from './articles.json';
-import commentsData from './comments.json';
+import articlesData from './data/articles.json';
+import commentsData from './data/comments.json';
 
 const userComments = {};
 
